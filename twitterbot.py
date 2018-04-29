@@ -1,14 +1,12 @@
 from time import sleep
-import tweepy, json
+import tweepy, json, time, os
 #user info stored, following, followers, whitelisted
-with open ('info.json', 'r') as info_file:
-	info_data = json.load(info_file)
+with open ('keys.json', 'r') as keys_file:
+	keys_data = json.load(keys_file)
 
-user_name = info_data['authentication']['user_name']
-
-
-authentication = tweepy.OAuthHandler(info_data["authentication"]["CONSUMER_KEY"], info_data["authentication"]["CONSUMER_SECRET"])
-authentication.set_access_token(info_data["authentication"]["ACCESS_TOKEN"], info_data["authentication"]["ACCESS_SECRET"])
+user_name = keys_data['authentication']['user_name']
+authentication = tweepy.OAuthHandler(keys_data["authentication"]["CONSUMER_KEY"], keys_data["authentication"]["CONSUMER_SECRET"])
+authentication.set_access_token(keys_data["authentication"]["ACCESS_TOKEN"], keys_data["authentication"]["ACCESS_SECRET"])
 api = tweepy.API(authentication)
 
 following = api.friends_ids(user_name)
@@ -23,35 +21,43 @@ def options():
 		follow()
 	else:
 		unfollow()
+#michaels a cunt
+
 #to follow someone else's followers
 def follow():
 	copy_name = input("type follower name to copy: ")
 	copy_followers = api.followers_ids(copy_name)
-	print (user_name)
-	#remove ppl already following, need to - whitelisted aswell
-	copy_followers_adjusted = set(copy_followers) - set(following)
-	with open('info.json', 'wb') as info_file:
-		write(copy_followers_adjusted)
-		data = json.load(info_file)
-		
-
-
-
 
 	
 
+	
+	blacklist = []
+	if os.stat('info.json').st_size != 0:
+		with open('info.json', 'r') as outfile:
+			blacklist = json.load(outfile)
+	followed_list = [blacklist]
 
+	#remove ppl already following n not to follow again
+	copy_followers_adjusted = set(copy_followers) - set(following)
 
+	print (len(copy_followers_adjusted))
 
-	'''for x in copy_followers_adjusted:
+	for x in copy_followers_adjusted:
 		api.create_friendship(x)
-		sleep()
+		followed_time = int(time.time())
+		followed_list.append(x)
+		sleep(2)
+		print (followed_list)
 
+
+	with open('info.json', 'w') as outfile:
+		json.dump(followed_list, outfile)
+	print (len(followed_list))
 def unfollow():
 	not_followed_back = set(following) - set(followers)
 
 	for x in not_followed_back:
 		api.destroy_friendship(x)
-		sleep(5)'''
+		sleep(1)
 options()
 
