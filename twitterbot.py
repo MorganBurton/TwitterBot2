@@ -5,8 +5,6 @@ with open ('keys.json', 'r') as keys_file:
 	keys_data = json.load(keys_file)
 
 user_name = keys_data['authentication']['user_name']
-
-
 authentication = tweepy.OAuthHandler(keys_data["authentication"]["CONSUMER_KEY"], keys_data["authentication"]["CONSUMER_SECRET"])
 authentication.set_access_token(keys_data["authentication"]["ACCESS_TOKEN"], keys_data["authentication"]["ACCESS_SECRET"])
 api = tweepy.API(authentication)
@@ -23,22 +21,24 @@ def options():
 		follow()
 	else:
 		unfollow()
+
 #to follow someone else's followers
 def follow():
 	copy_name = input("type follower name to copy: ")
 	copy_followers = api.followers_ids(copy_name)
 	print (user_name)
+
 	#remove ppl already following, need to - whitelisted aswell
 	copy_followers_adjusted = set(copy_followers) - set(following)
-	with open('info.json', 'wb') as info_file:
-		write(copy_followers_adjusted)
+	copy_followers_adjusted_dict = {'copy_followers_adjusted':copy_followers_adjusted}
+	
+	with open('info.json', 'w') as info_file:
+		json.dump(copy_followers_adjusted_dict,info_file)
 		data = json.load(info_file)
+
+
 		
 
-
-
-
-	
 
 
 
